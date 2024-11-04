@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Wishlist</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h2>Your Wishlist</h2>
+        <div class="row">
+            {% for item in wishlist_items %}
+            <div class="col-md-4">
+                <div class="card mb-4 shadow-sm">
+                    {% if item.product.image %}
+                        <img src="{{ item.product.image.url }}" class="card-img-top" alt="{{ item.product.name }}">
+                    {% else %}
+                        <img src="{% static 'default.jpg' %}" class="card-img-top" alt="Default Image">
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title">{{ item.product.name }}</h5>
+                        <p class="card-text">{{ item.product.description }}</p>
+                        <p class="card-text"><strong>Price:</strong> ${{ item.product.price }}</p>
+                        <a pid="{{ item.product.id }}" class="btn btn-danger minus-wishlist">Remove from Wishlist</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+
+    <script>
+        function removeFromWishlist(prodId) {
+            fetch(`/minus_wishlist?prod_id=${prodId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.message === 'Wishlist Removed Successfully') {
+                        window.location.reload(); // Reload the page to update the wishlist
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        }
+    </script>
+</body>
+</html>

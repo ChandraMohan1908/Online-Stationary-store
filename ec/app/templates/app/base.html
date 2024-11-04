@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="{% static 'app/css/owl.carousel.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'app/css/all.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'app/css/style.css' %}" />
+    <title>Stationary products | {% block title %}{% endblock title %}</title>
+    <style>
+        body {
+            padding-top: 70px; 
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-danger fixed-top">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">
+                <img src="{% static 'app/images/product/shop.png' %}" width="120" height="50" />
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    {% if request.user.is_authenticated %}
+                    {% if request.user.is_superuser %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'product_list' %}" style="color: rgb(255, 255, 255);">
+                            <i class="fas fa-tachometer-alt"></i> <strong>Dashboard</strong>
+                        </a>
+                    </li>
+                    {% endif %}
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="/">Home</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Category
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{% url 'category' 'AR' %}">Pencil</a></li>
+                            <li><a class="dropdown-item" href="{% url 'category' 'OG' %}">Pencil Box</a></li>
+                            <li><a class="dropdown-item" href="{% url 'category' 'DB' %}">Pen</a></li>
+                            <li><a class="dropdown-item" href="{% url 'category' 'PS' %}">Ruler</a></li>
+                            <li><a class="dropdown-item" href="{% url 'category' 'SS' %}">Ruled Note</a></li>
+                            <li><a class="dropdown-item" href="{% url 'category' 'DF' %}">Unruled Note</a></li>
+                            <li><a class="dropdown-item" href="{% url 'category' 'CN' %}">Eraser</a></li>
+                            <li><a class="dropdown-item" href="{% url 'category' 'BE' %}">Sharpener</a></li>
+                        </ul>
+                    </li>
+                   
+                    
+                    <li class="nav-item dropdown mx-2">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">{{ request.user.username }}</a>
+                        <ul class="dropdown-menu" aria-labelledby="profileDropdown">
+                            <li><a class="dropdown-item" href="{% url 'profile' %}">Profile</a></li>
+                            <li><a class="dropdown-item" href="{% url 'passwordchange' %}">Change Password</a></li>
+                            <li>
+                                <form method="POST" action="{% url 'logout' %}" style="margin: 0;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="dropdown-item">Logout</button>
+                                </form>
+                            </li>
+                        </ul>
+                    </li>
+                    {% else %}
+                    <li class="nav-item mx-2">
+                        <a href="{% url 'login' %}" class="nav-link text-white">Login</a>
+                    </li>
+                    <li class="nav-item mx-2">
+                        <a href="{% url 'customerregistration' %}" class="nav-link text-white">Registration</a>
+                    </li>
+                    {% endif %}
+                </ul>
+
+               
+                {% if user.is_staff %}
+    <div class="nav-item mx-2" ><a href="{% url 'custom_admin' %}" class="nav-link text-white">Admin Panel</a></div>
+                 {% endif %}
+                 
+               
+
+
+
+                <form class="d-flex" role="search" action="/search">
+                    <input class="form-control me-2" type="search" placeholder="Search" name="search" aria-label="Search">
+                    <button class="btn btn-outline-dark text-white bg-dark" type="submit">Search</button>
+                </form>
+            </div>
+            <div class="nav-item mx-2">
+                <a href="{% url 'showcart' %}" class="nav-link text-white">
+                    <span class="badge bg-dark">
+                        {% if totalitem and totalitem|add:"0" > 0 %}
+                            {{ totalitem }}
+                        {% endif %}
+                    </span>
+                    Cart
+                </a>
+            </div>
+              <div class="nav-item mx-2">
+                <a href="{% url 'orders' %}" class="nav-link text-white">Orders</a>
+            </div>  
+            {% comment %} <div class="nav-item mx-2">
+                <a href="#" class="nav-link text-white">
+                     <i class="fas fa-heart"></i> <!--heart icon -->
+                    <span class="badge bg-dark">
+                        {% if wishitem|add:"0" > 0 %}
+                            {{ wishitem }}
+                        {% endif %}
+                    </span>
+                </a>
+            </div> {% endcomment %}
+            {% comment %} <div class="nav-item mx-2">
+                <a href="{% url 'wishlist' %}" class="nav-link text-white" id="wishlist-icon">
+                    <i class="fas fa-heart"></i>
+                    <span class="badge bg-dark" id="wishlist-count">
+                        {% if wishitem|add:"0" > 0 %}
+                            {{ wishitem }}
+                        {% endif %}
+                    </span>
+                </a>
+            </div> {% endcomment %}
+        </div>
+    </nav>
+
+    {% block banner-slider %} {% endblock banner-slider %}
+    {% block information %} {% endblock information %}
+    {% block main-content %} {% endblock main-content %}
+    {% block payment-gateway %} {% endblock payment-gateway %}
+
+    <footer class="container-fluid fixed-bottom bg-danger text-center p-2 mt-5">
+        &#169; CopyRight By Chandra Mohan 
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="{% static 'app/js/owl.carousel.min.js' %}"></script>
+    <script src="{% static 'app/js/all.min.js' %}"></script>
+    <script src="{% static 'app/js/myscript.js' %}"></script>
+    <script>
+        // Function to add to wishlist
+        function addToWishlist(prodId) {
+            fetch(`/plus_wishlist?prod_id=${prodId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.message === 'Wishlist Added Successfully') {
+                        updateWishlistCount(1); // Increase count by 1
+                    } else if (data.message === 'User not authenticated') {
+                        alert("Please log in to add items to your wishlist.");
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        }
+    
+        // Function to remove from wishlist
+        function removeFromWishlist(prodId) {
+            fetch(`/minus_wishlist?prod_id=${prodId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.message === 'Wishlist Removed Successfully') {
+                        updateWishlistCount(-1); // Decrease count by 1
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        }
+    
+        // Function to update the wishlist count badge
+        function updateWishlistCount(change) {
+            const countElem = document.getElementById("wishlist-count");
+            let currentCount = parseInt(countElem.innerText || "0");
+            currentCount += change;
+            countElem.innerText = currentCount > 0 ? currentCount : ""; // Show count or empty if 0
+        }
+    </script>
+    
+</body>
+</html>

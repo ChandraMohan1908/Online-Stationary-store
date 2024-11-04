@@ -1,0 +1,95 @@
+{% block content %}
+<div class="sidebar">
+    {% include 'admin/sidebar.html' %}
+</div>
+
+<div class="dashboard-container" style="padding-left: 10%;">
+    <h2 style="display: flex; justify-content: center;">Dashboard</h2>
+    <div class="card-container">
+        <div class="card product-card">
+            <div class="card-body">
+                <h5 class="card-title">Total Products</h5>
+                <p class="card-text">{{ total_products }}</p>
+            </div>
+        </div>
+        <div class="card customer-card">
+            <div class="card-body">
+                <h5 class="card-title">Total Customers</h5>
+                <p class="card-text">{{ total_customers }}</p>
+            </div>
+        </div>
+        <div class="card order-card">
+            <div class="card-body">
+                <h5 class="card-title">Total Orders</h5>
+                <p class="card-text">{{ total_orders }}</p>
+            </div>
+        </div>
+        <div class="card cart-card">
+            <div class="card-body">
+                <h5 class="card-title">Total Cart Items</h5>
+                <p class="card-text">{{ total_cart_items }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .dashboard-container {
+        padding: 20px; /* Padding around dashboard */
+    }
+
+    h2 {
+        margin-bottom: 20px; /* Space below heading */
+        color: #333; /* Dark gray for heading */
+    }
+
+    .card-container {
+        display: flex; /* Flexbox for card layout */
+        flex-wrap: wrap; /* Allow wrapping of cards */
+        gap: 20px; /* Space between cards */
+        justify-content: center; /* Center align cards */
+    }
+
+    .card {
+        flex: 1; /* Equal width for cards */
+        min-width: 250px; /* Minimum width for cards */
+        max-width: 300px; /* Maximum width for cards */
+        border: 1px solid #ccc; /* Light gray border */
+        border-radius: 5px; /* Rounded corners */
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    }
+
+    .product-card {
+        background-color: #d1e7dd; /* Light green background */
+    }
+
+    .customer-card {
+        background-color: #f8d7da; /* Light red background */
+    }
+
+    .order-card {
+        background-color: #fff3cd; /* Light yellow background */
+    }
+
+    .cart-card {
+        background-color: #cfe2ff; /* Light blue background */
+    }
+
+    .card-body {
+        padding: 15px; /* Padding inside card */
+    }
+
+    .card-title {
+        font-size: 1.25rem; /* Title font size */
+        margin-bottom: 10px; /* Space below title */
+        color: #007bff; /* Primary color for title */
+    }
+
+    .card-text {
+        font-size: 1.5rem; /* Font size for count */
+        font-weight: bold; /* Bold text for count */
+        color: #333; /* Dark gray for count */
+    }
+</style>
+
+{% endblock %}

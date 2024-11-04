@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Admin Panel{% endblock %}</title>
+    <link rel="stylesheet" href="{% load static %}{% static 'css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% load static %}{% static 'css/styles.css' %}"> <!-- Custom CSS -->
+    <script src="{% load static %}{% static 'js/bootstrap.bundle.min.js' %}"></script>
+    <style>
+        /* Custom styles for admin panel */
+        body {
+            display: flex;
+            flex-direction: row;
+            overflow-x: hidden; /* Prevent horizontal scroll */
+        }
+
+        #sidebar {
+            width: 250px; /* Fixed width for sidebar */
+            background-color: #3fd2ff; /* Sidebar background */
+            border-right: 1px solid #dee2e6; /* Subtle border */
+            padding: 20px; /* Padding inside sidebar */
+            position: fixed; /* Fixed sidebar */
+            height: 100vh; /* Full height */
+            overflow-y: auto; /* Scroll if content overflows */
+            transition: transform 0.3s ease; /* Smooth transition for toggling */
+        }
+
+        #sidebar h2 {
+            color: #007bff; /* Primary color for heading */
+            margin: 0 0 20px; /* Space below heading */
+            font-size: 24px; /* Larger font for heading */
+        }
+
+        #sidebar a {
+            display: block;
+            padding: 15px 10px; /* Padding for links */
+            color: rgb(0, 0, 0); /* Dark gray color for text */
+            text-decoration: none; /* Remove underline */
+            margin-bottom: 10px; /* Space between links */
+            border-radius: 5px; /* Rounded corners */
+            transition: background-color 0.3s; /* Smooth transition */
+            font-weight: 500; /* Medium weight */
+        }
+
+        #sidebar a:hover {
+            background-color: #67a9eb; /* Highlight on hover */
+            color: #007bff; /* Change text color on hover */
+        }
+
+        #main {
+            flex-grow: 1; /* Allow main content to grow */
+            padding: 20px; /* Padding around main content */
+            margin-left: 250px; /* Space for sidebar */
+            transition: margin-left 0.3s; /* Smooth transition for content */
+        }
+
+        #main h1 {
+            color: rgb(10, 9, 9); /* Dark gray for main headings */
+            margin-bottom: 20px; /* Space below headings */
+            font-size: 28px; /* Larger font for main headings */
+        }
+
+        #main p {
+            color: rgb(0, 0, 0); /* Lighter gray for paragraph text */
+            line-height: 1.6; /* Improved line height */
+        }
+
+        /* Hide the sidebar initially for mobile */
+        @media (max-width: 768px) {
+            #sidebar {
+                transform: translateX(-100%); /* Hide sidebar off-screen */
+                position: absolute; /* Change position */
+                height: auto; /* Remove fixed height */
+                width: 100%; /* Full width */
+            }
+
+            #sidebar.active {
+                transform: translateX(0); /* Show sidebar */
+            }
+
+            #main {
+                margin-left: 0; /* Remove margin for main content */
+                padding: 10px; /* Reduce padding */
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="btn btn-primary d-md-none" id="sidebarToggle">Toggle Sidebar</button> <!-- Button to toggle sidebar -->
+    
+    <div id="sidebar" class="d-none d-md-block">
+        <h2>Admin Panel</h2>
+        <a href="{% url 'product_list' %}">Products</a>
+        <a href="{% url 'customer_list' %}">Customers</a>
+        <a href="{% url 'logout' %}">Logout</a>
+    </div>
+
+    <div id="main">
+        {% block content %}
+        {% endblock %}
+    </div>
+
+    <script>
+        // JavaScript to toggle the sidebar
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const sidebar = document.getElementById('sidebar');
+
+        sidebarToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('active'); // Toggle sidebar visibility
+            if (sidebar.classList.contains('active')) {
+                document.getElementById('main').style.marginLeft = '0'; // Shift content
+            } else {
+                document.getElementById('main').style.marginLeft = '250px'; // Restore margin
+            }
+        });
+    </script>
+</body>
+</html>

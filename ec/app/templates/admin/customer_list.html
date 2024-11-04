@@ -1,0 +1,121 @@
+{% block content %}
+<div class="sidebar">
+    {% include 'admin/sidebar.html' %}
+</div>
+
+<!-- Centered container for the content -->
+<div class="content-container">
+    <h2 style="color:rgb(0, 0, 0);">Customer List</h2>
+    <a href="{% url 'customer_create' %}" class="button add-button">Add New Customer</a>
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Mobile</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for customer in customers %}
+            <tr>
+                <td>{{ customer.id }}</td>
+                <td>{{ customer.name }}</td>
+                <td>{{ customer.mobile }}</td>
+                <td>
+                    <a href="{% url 'customer_update' customer.id %}" class="button edit">Edit</a>
+                    <form action="{% url 'customer_delete' customer.id %}" method="post" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="button delete">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<style>
+    /* Center the content using flexbox */
+    .content-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center; /* Center items horizontally */
+        margin-top: 20px; /* Add space above the content */
+    }
+
+    h2 {
+        margin-bottom: 20px; /* Space below the heading */
+    }
+
+    .add-button {
+        margin-bottom: 20px; /* Space below the button */
+        background-color: #28a745; /* Green background for add button */
+    }
+
+    table {
+        width: 70%; /* Full width for the table */
+        border-collapse: collapse; /* Collapse borders */
+    }
+
+    th, td {
+        padding: 15px; /* Padding for table cells */
+        text-align: left; /* Align text to the left */
+        border: 1px solid #dee2e6; /* Light gray border */
+        color: rgb(14, 13, 13);
+    }
+
+    th {
+        background-color: #007bff; /* Header background color */
+        color: white; /* White text for header */
+        font-weight: bold; /* Bold text for header */
+    }
+
+    tr:nth-child(even) {
+        background-color: #f2f2f2; /* Light gray for even rows */
+    }
+
+    tr:hover {
+        background-color: #61b0ff; /* Highlight on hover */
+    }
+
+    /* Button styles */
+    .button {
+        display: inline-block; /* Inline block for buttons */
+        padding: 10px 15px; /* Padding for buttons */
+        color: white; /* Text color for buttons */
+        background-color: #007bff; /* Button background color */
+        text-decoration: none; /* Remove underline */
+        border: none; /* Remove border */
+        border-radius: 5px; /* Rounded corners */
+        cursor: pointer; /* Pointer cursor */
+        transition: background-color 0.3s; /* Smooth transition */
+        font-weight: 500; /* Medium weight for text */
+    }
+
+    .button:hover {
+        background-color: #0056b3; /* Darker blue on hover */
+    }
+
+    .add-button:hover {
+        background-color: #218838; /* Darker green on hover */
+    }
+
+    .edit {
+        background-color: #ffc107; /* Yellow for edit button */
+    }
+
+    .edit:hover {
+        background-color: #e0a800; /* Darker yellow on hover */
+    }
+
+    .delete {
+        background-color: #dc3545; /* Red for delete button */
+    }
+
+    .delete:hover {
+        background-color: #c82333; /* Darker red on hover */
+    }
+</style>
+{% endblock %}

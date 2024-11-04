@@ -1,0 +1,127 @@
+{% extends 'app/base.html' %}
+{% block title %}Product Details{% endblock title %}
+
+{% block main-content %}
+    <div class="container">
+        <div class="row flex justify-content-between">  
+            <div class="img2 col-lg-5 mt-5">
+                <img src="{{ product.Product_image.url }}" class="image col-xs-6 vol-sm-12 col-lg-12 mt-3 text-sm-center w-100 h-75" alt="">    
+            </div>
+            <div class="productdetail col-lg-5">
+                <h1 style="font-family: Georgia; font-size:50px;">{{ product.title }}</h1>
+                <h5>Rs.{{product.discounted_price}}/-</h5>
+                <small class="text-decoration-line-through text-muted fs-5">
+                    <del>Rs.{{product.selling_price}}/-</del>
+                </small>
+                <br><br>
+                <h4>Product Features: </h4>
+                <ul class="fs-5" style="font-family: Rajdhani;">
+                    <li>{{product.description}}</li>
+                    <!-- <li>Composition: {{product.composition}}</li>
+                    <li>Use: {{product.prodapp}}</li> -->
+                </ul>
+
+                <form action="/add-to-cart" class="d-inline">
+                    <input type="hidden" name="prod_id" value={{product.id}} />
+                    <button type="submit" class="btn btn-primary shadow px-5 py-2">Add to Cart</button>
+                    </form>
+                                    
+                    <a href="{% url 'showcart' %}" class="btn btn-warning shadow px-5 py-2">Buy Now</a>
+                
+                    {% if wishlist %}
+                    <a pid="{{ product.id }}" class="minus-wishlist btn btn-danger shadow px-5 py-2 ms-4">
+                        <i class="fas fa-heart fa-lg"></i>
+                    </a>
+                    {% else %}
+                    <a pid="{{ product.id }}" class="plus-wishlist btn btn-success shadow px-5 py-2 ms-4">
+                        <i class="fas fa-heart fa-lg"></i>
+                    </a>
+                    {% endif %}
+                </div>
+                
+            </div>
+        </div>
+    </div>
+
+    <div class="container mt-5">
+        <h4>Customer Reviews</h4>
+    
+        <!-- Display existing reviews -->
+        <div class="reviews">
+            {% for review in reviews %}
+                <div class="review border-bottom mb-3 pb-2">
+                    <strong>{{ review.user.username }}</strong> rated <strong>{{ review.rating }}/5</strong>
+                    <p>{{ review.comment }}</p>
+                    <small class="text-muted">{{ review.created_at|date:"M d, Y H:i" }}</small>
+                </div>
+            {% empty %}
+                <p>No reviews yet.</p>
+            {% endfor %}
+        </div>
+    
+        <!-- Review form for logged-in users only -->
+        {% if user.is_authenticated %}
+        <h4>Submit a Review</h4>
+        <form method="POST" action="{% url 'product-detail' product.id %}">
+            {% csrf_token %}
+            {{ review_form.as_p }}
+            <button type="submit" class="btn btn-primary" style="padding-bottom:3%">Submit Review</button>
+        </form>
+        {% else %}
+        <p><a href="{% url 'login' %}">Log in</a> to submit a review.</p>
+        {% endif %}
+    </div>
+
+    <!-- JavaScript for AJAX Wishlist functionality -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script>
+    $(document).ready(function() {
+        // Add to Wishlist
+        $('.plus-wishlist').click(function(event) {
+            event.preventDefault();
+            var prod_id = $(this).attr('pid');
+            $.ajax({
+                url: "{% url 'plus_wishlist' %}",
+                method: 'GET',
+                data: { prod_id: prod_id },
+                success: function(response) {
+                    alert(response.message);
+                    location.reload();
+                },
+                error: function(xhr) {
+                    if (xhr.status === 401) {
+                        alert("Please log in to add items to your wishlist.");
+                        window.location.href = "{% url 'login' %}";  // Redirect to login page
+                    } else {
+                        alert("An error occurred while adding to wishlist.");
+                    }
+                }
+            });
+        });
+    
+        // Remove from Wishlist
+        $('.minus-wishlist').click(function(event) {
+            event.preventDefault();
+            var prod_id = $(this).attr('pid');
+            $.ajax({
+                url: "{% url 'minus_wishlist' %}",
+                method: 'GET',
+                data: { prod_id: prod_id },
+                success: function(response) {
+                    alert(response.message);
+                    location.reload();
+                },
+                error: function(xhr) {
+                    if (xhr.status === 401) {
+                        alert("Please log in to remove items from your wishlist.");
+                        window.location.href = "{% url 'login' %}";  // Redirect to login page
+                    } else {
+                        alert("An error occurred while removing from wishlist.");
+                    }
+                }
+            });
+        });
+    });
+    
+</script>
+{% endblock main-content %}

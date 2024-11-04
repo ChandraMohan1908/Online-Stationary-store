@@ -1,0 +1,50 @@
+{% extends 'app/base.html' %}
+{% load static %}
+{% block title %}Customer Registration{% endblock title %}
+
+{% block main-content %}
+<style>
+.container {
+    width: 50%;  /* Set the width to 50% */
+    margin: 0 auto;  /* Center the container */
+    padding: 20px;  /* Add some padding for aesthetics */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);  /* Optional: Add a subtle shadow for depth */
+    border-radius: 8px;  /* Optional: Rounded corners */
+    background-color: #fff;  /* Optional: Background color */
+}
+
+h1 {
+    text-align: center;  /* Center the title */
+    margin-bottom: 20px;  /* Add some space below the title */
+}
+</style>
+
+<div class="container">
+    <h1>Register</h1>
+    <form method="post" novalidate>
+        {% csrf_token %}
+        {% for fm in form %}
+            {{ fm.label_tag }} {{ fm }} <small class="text-danger">{{ fm.errors|striptags }}</small><br>
+        {% endfor %}
+        <button type="submit" class="btn btn-primary">Register</button>
+    </form>
+
+    <div class="text-center text-primary fw-bold mt-3">
+        <small>Existing User? <a href="{% url 'login' %}" class="text-danger">Login Now</a></small>
+    </div>
+
+    {% if form.non_field_errors %}
+    {% for error in form.non_field_errors %}
+       <p class="alert alert-danger my-3">{{error}}</p>
+    {% endfor %}
+    {% endif %}
+
+    {% if messages %}
+    {% for msg in messages %}
+       <div class="alert alert-{{msg.tags}}" role="alert">
+            {{ msg }}
+       </div>
+    {% endfor %}
+    {% endif %}
+</div>
+{% endblock main-content %}

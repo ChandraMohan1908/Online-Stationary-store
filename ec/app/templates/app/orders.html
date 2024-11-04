@@ -1,0 +1,45 @@
+{% extends 'app/base.html' %}
+{% load static %}
+{% block title %}Buy Now{% endblock title %}
+{% block main-content %}
+<div class="container my-5">
+    <div class="row">
+        <h3>Welcome <span class="text-capitalize">{{ request.user }}</span></h3>
+        <div class="col-sm-2 border-end">
+            <ul class="list-unstyled">
+                <li class="d-grid"><a href="{% url 'orders' %}" class="btn btn-primary">Orders</a></li>
+            </ul>
+        </div>
+
+        <!-- app/templates/app/orders.html -->
+<div class="container my-5">
+    <h3>Your Orders</h3>
+    <div class="row">
+        <div class="col-sm-12">
+            {% for op in order_placed %}
+            <div class="row mb-4 border p-3">
+                <div class="col-sm-2">
+                    <img src="{{ op.product.Product_image.url }}" class="img-fluid" height="100" width="100"/>
+                </div>
+                <div class="col-sm-7">
+                    <p><strong>Product:</strong> {{ op.product.title }}</p>
+                    <p><strong>Quantity:</strong> {{ op.quantity }}</p>
+                    <p><strong>Ordered Date:</strong> {{ op.ordered_date|date:"M d, Y" }}</p>
+                    <p><strong>Status:</strong> {{ op.status }}</p>
+                </div>
+                <div class="col-sm-3">
+                    <p><strong>Selling Price:</strong> ${{ op.product.selling_price }}</p>
+                    <p><strong>Discounted Price:</strong> ${{ op.product.discounted_price }}</p>
+                    {% if op.payment %}
+                        <p><strong>Payment ID:</strong> {{ op.payment.id }}</p>
+                    {% endif %}
+                </div>
+            </div>
+            {% empty %}
+            <p>No orders have been placed yet.</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+{% endblock main-content %}

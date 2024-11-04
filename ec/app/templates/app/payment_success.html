@@ -1,0 +1,65 @@
+<!-- app/templates/app/payment_success.html -->
+{% comment %} <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Successful</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container text-center mt-5">
+        <h1 class="text-success">Payment Successful!</h1>
+        <p class="lead">Thank you for your purchase. Your payment was successfully processed.</p>
+        
+        {% comment %} <p>You can view your order details in your <a href="{% url 'orders' %}">Order History</a>.</p> {% endcomment %}
+        {% comment %} <a href="{% url 'home' %}" class="btn btn-primary mt-4">Return to Home</a>
+    </div>
+</body>
+</html> {% endcomment %} 
+
+<!-- app/templates/app/payment_success.html -->
+{% load static %}  <!-- Load static files at the beginning -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Successful</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <style>
+        /* Add a hover effect on the image */
+        .hover-image {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            width: 400px; /* Adjust as needed */
+            height: auto;
+            margin-top: 20px;
+            border-radius: 8px;
+            display: block; /* Make the image a block element */
+            margin-left: auto;  /* Center the image */
+            margin-right: auto; /* Center the image */
+        }
+
+        /* Scale up the image and add shadow on hover */
+        {% comment %} .hover-image:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); {% endcomment %}
+        }
+    </style>
+</head>
+<body>
+    <div class="container text-center mt-5">
+        <h1 class="text-success">Payment Successful!</h1>
+        <p class="lead">Thank you for your purchase. Your payment was successfully processed.</p>
+        
+        <!-- Commented out section using correct comment syntax -->
+        {# <p>You can view your order details in your <a href="{% url 'orders' %}">Order History</a>.</p> #}
+        
+        <!-- Add the image with hover effect above the button -->
+        <img src="{% static 'app/images/product/green-tick.jpg' %}" alt="Success Image" class="hover-image">
+        
+        <a href="{% url 'home' %}" class="btn btn-primary mt-4">Return to Home</a>
+    </div>
+</body>
+</html>
+

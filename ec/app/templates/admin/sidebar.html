@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Admin Panel{% endblock %}</title>
+    <link rel="stylesheet" href="{% load static %}{% static 'css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% load static %}{% static 'css/styles.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script src="{% load static %}{% static 'js/bootstrap.bundle.min.js' %}"></script>
+    <style>
+        /* Custom styles for admin panel */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        /* Sidebar styles */
+        #sidebar {
+            background-color: #c40000;
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 220px;
+            padding-top: 20px;
+            z-index: 1000;
+            transition: width 0.3s ease;
+        }
+
+        #sidebar h2 {
+            color: #007bff;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        #sidebar a {
+            display: block;
+            color: rgb(248, 248, 248);
+            text-decoration: none;
+            padding: 10px 20px;
+            margin: 10px 0;
+            font-weight: 500;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        #sidebar a:hover {
+            background-color: #007bff;
+            color: white;
+        }
+
+        #sidebar a i {
+            margin-right: 10px;
+        }
+
+        #main {
+            margin-left: 220px;
+            padding: 20px;
+            transition: margin-left 0.3s ease;
+        }
+
+        #main h1 {
+            color: rgb(247, 243, 243);
+            margin-bottom: 20px;
+            font-size: 28px;
+        }
+
+        .dashboard-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px;
+            background-color: #013342;
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        .dashboard-header h1 {
+            margin: 0;
+            font-size: 24px;
+            color: white;
+        }
+
+        button.dropdown-item {
+            border: none;
+            background: none;
+            cursor: pointer;
+            color: white;
+        }
+
+        .dropdown-item:hover {
+            color: rgb(245, 0, 0);
+        }
+
+        .toggle-btn {
+            font-size: 24px;
+            color: white;
+            cursor: pointer;
+            border: none;
+            background: none;
+            margin-left: 15px;
+            outline: none;
+        }
+
+        @media (max-width: 768px) {
+            #sidebar {
+                width: 100px;
+            }
+
+            #main {
+                margin-left: 100px;
+            }
+
+            #sidebar a {
+                padding: 10px;
+            }
+
+            #sidebar a span {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div id="sidebar">
+        <h2>Stationay Shop</h2>
+        <a href="{% url 'product_list' %}"><i class="fas fa-box"></i> <span>Products</span></a>
+        <a href="{% url 'customer_list' %}"><i class="fas fa-users"></i> <span>Customers</span></a>
+        <a href="{% url 'cart_list' %}"><i class="fas fa-shopping-cart"></i> <span>Cart</span></a>
+        <a href="{% url 'order_list' %}"><i class="fas fa-receipt"></i> <span>Orders</span></a>
+        <a href="{% url 'payment_list' %}"><i class="fas fa-credit-card"></i> <span>Payments</span></a>
+        <a href="{% url 'dashboard' %}"><i class="fas fa-tachometer-alt"></i> <span>Dashboard</span></a>
+        <a href="{% url 'passwordchange' %}"><i class="fas fa-lock"></i> <span>Change Password</span></a>
+        <a href="{% url 'profile' %}"><i class="fas fa-user"></i> <span>Profile</span></a>
+        <a href="{% url 'home' %}"><i class="fas fa-globe"></i> <span>View Site</span></a>
+
+        <a href="{% url 'logout' %}"><button type="submit" class="dropdown-item"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></button></a>
+    </div>
+
+    <!-- Main content -->
+    <div id="main">
+  
+        {% block content %}
+        {% endblock content %}
+    </div>
+
+    <script>
+        function toggleSidebar() {
+            var sidebar = document.getElementById('sidebar');
+            var main = document.getElementById('main');
+            if (sidebar.style.width === '220px' || sidebar.style.width === '') {
+                sidebar.style.width = '60px';
+                main.style.marginLeft = '60px';
+            } else {
+                sidebar.style.width = '220px';
+                main.style.marginLeft = '220px';
+            }
+        }
+    </script>
+</body>
+</html>

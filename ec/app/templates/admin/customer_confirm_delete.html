@@ -1,0 +1,9 @@
+{% extends 'admin/base.html' %}
+{% block content %}
+<h2>Are you sure you want to delete "{{ object.name }}"?</h2>
+<form method="post">
+    {% csrf_token %}
+    <button type="submit" class="button confirm">Yes, delete</button>
+</form>
+<a href="{% url 'customer_list' %}" class="button">Cancel</a>
+{% endblock %}
