@@ -57,7 +57,11 @@
                             <span id="totalamount"><strong>Rs. {{ totalamount }}</strong></span>
                         </li>
                     </ul>
-                    <div class="d-grid"><a href="{% url 'payment_success' %}" class="btn btn-primary">Place Order</a></div>
+            
+                    <div class="d-grid">
+                        <a href="{% url 'place_order' %}" class="btn btn-primary">Place Order</a>
+                    </div>
+                    
                 </div>
             </div>
         </div>

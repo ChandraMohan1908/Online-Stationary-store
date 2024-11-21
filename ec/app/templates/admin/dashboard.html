@@ -1,94 +1,154 @@
-{% block content %}
+ {% block content %}
 <div class="sidebar">
     {% include 'admin/sidebar.html' %}
 </div>
 
 <div class="dashboard-container" style="padding-left: 10%;">
     <h2 style="display: flex; justify-content: center;">Dashboard</h2>
+
     <div class="card-container">
-        <div class="card product-card">
-            <div class="card-body">
-                <h5 class="card-title">Total Products</h5>
-                <p class="card-text">{{ total_products }}</p>
-            </div>
+        <div class="card" style="margin-top: 10px;"> <!-- Adjusted margin for spacing -->
+            <h5 class="card-title">Products by Category</h5>
+            <canvas id="productsChart"></canvas>
         </div>
-        <div class="card customer-card">
-            <div class="card-body">
-                <h5 class="card-title">Total Customers</h5>
-                <p class="card-text">{{ total_customers }}</p>
-            </div>
+        <div class="card">
+            <h5 class="card-title">Orders by Status</h5>
+            <canvas id="ordersChart"></canvas>
         </div>
-        <div class="card order-card">
-            <div class="card-body">
-                <h5 class="card-title">Total Orders</h5>
-                <p class="card-text">{{ total_orders }}</p>
-            </div>
+        <div class="card" style="margin-top: 10px;"> <!-- Adjusted margin for spacing -->
+            <h5 class="card-title">Customers by State</h5>
+            <canvas id="customersChart"></canvas>
         </div>
-        <div class="card cart-card">
-            <div class="card-body">
-                <h5 class="card-title">Total Cart Items</h5>
-                <p class="card-text">{{ total_cart_items }}</p>
-            </div>
+        <div class="card">
+            <h5 class="card-title">Payments by Status</h5>
+            <canvas id="paymentsChart"></canvas>
         </div>
     </div>
 </div>
 
+<!-- Chart.js Library -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- Chart Configuration -->
+<script>
+    // Products Chart Data
+    const productsData = {{ products_data | safe }};
+    const productsChart = new Chart(document.getElementById('productsChart').getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: productsData.labels,
+            datasets: [{
+                label: 'Products by Category',
+                data: productsData.values,
+                backgroundColor: ['#d1e7dd', '#f8d7da', '#fff3cd', '#cfe2ff'],
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: { 
+                y: { beginAtZero: true },
+                x: { barThickness: 40 }  // Adjusted bar thickness for taller bars
+            }
+        }
+    });
+
+    // Orders Chart Data
+    const ordersData = {{ orders_data | safe }};
+    const ordersChart = new Chart(document.getElementById('ordersChart').getContext('2d'), {
+        type: 'pie',
+        data: {
+            labels: ordersData.labels,
+            datasets: [{
+                label: 'Orders by Status',
+                data: ordersData.values,
+                backgroundColor: ['#007bff', '#ffc107', '#28a745', '#dc3545'],
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { position: 'top' } }
+        }
+    });
+
+    // Customers Chart Data
+    const customersData = {{ customers_data | safe }};
+    const customersChart = new Chart(document.getElementById('customersChart').getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: customersData.labels,
+            datasets: [{
+                label: 'Customers by State',
+                data: customersData.values,
+                backgroundColor: '#4e73df',
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: { 
+                y: { beginAtZero: true },
+                x: { barThickness: 40 }  // Adjusted bar thickness for taller bars
+            }
+        }
+    });
+
+    // Payments Chart Data
+    const paymentsData = {{ payments_data | safe }};
+    const paymentsChart = new Chart(document.getElementById('paymentsChart').getContext('2d'), {
+        type: 'doughnut',
+        data: {
+            labels: paymentsData.labels,
+            datasets: [{
+                label: 'Payments by Status',
+                data: paymentsData.values,
+                backgroundColor: ['#20c997', '#dc3545'],
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { position: 'top' } }
+        }
+    });
+</script>
+
 <style>
     .dashboard-container {
-        padding: 20px; /* Padding around dashboard */
+        padding: 20px;
     }
 
     h2 {
-        margin-bottom: 20px; /* Space below heading */
-        color: #333; /* Dark gray for heading */
+        margin-bottom: 20px;
+        color: #333;
     }
 
     .card-container {
-        display: flex; /* Flexbox for card layout */
-        flex-wrap: wrap; /* Allow wrapping of cards */
-        gap: 20px; /* Space between cards */
-        justify-content: center; /* Center align cards */
+        display: grid;
+        grid-template-columns: repeat(2, 1fr); /* Two cards per row */
+        gap: 20px;
+        justify-items: center;
     }
 
     .card {
-        flex: 1; /* Equal width for cards */
-        min-width: 250px; /* Minimum width for cards */
-        max-width: 300px; /* Maximum width for cards */
-        border: 1px solid #ccc; /* Light gray border */
-        border-radius: 5px; /* Rounded corners */
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow */
-    }
-
-    .product-card {
-        background-color: #d1e7dd; /* Light green background */
-    }
-
-    .customer-card {
-        background-color: #f8d7da; /* Light red background */
-    }
-
-    .order-card {
-        background-color: #fff3cd; /* Light yellow background */
-    }
-
-    .cart-card {
-        background-color: #cfe2ff; /* Light blue background */
-    }
-
-    .card-body {
-        padding: 15px; /* Padding inside card */
+        width: 100%;
+        max-width: 300px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        box-sizing: border-box;
     }
 
     .card-title {
-        font-size: 1.25rem; /* Title font size */
-        margin-bottom: 10px; /* Space below title */
-        color: #007bff; /* Primary color for title */
+        font-size: 1.25rem;
+        margin-bottom: 10px;
+        color: #007bff;
+        text-align: center;
     }
 
-    .card-text {
-        font-size: 1.5rem; /* Font size for count */
-        font-weight: bold; /* Bold text for count */
-        color: #333; /* Dark gray for count */
+    .card canvas {
+        max-width: 100%;
+        height: 220px; /* Increased canvas height for larger bars */
     }
 </style>
 

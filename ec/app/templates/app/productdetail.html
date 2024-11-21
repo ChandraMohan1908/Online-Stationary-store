@@ -46,11 +46,17 @@
     <div class="container mt-5">
         <h4>Customer Reviews</h4>
     
-        <!-- Display existing reviews -->
+
         <div class="reviews">
             {% for review in reviews %}
                 <div class="review border-bottom mb-3 pb-2">
-                    <strong>{{ review.user.username }}</strong> rated <strong>{{ review.rating }}/5</strong>
+                    <strong>{{ review.user.username }}</strong> rated <strong>
+                        <div class="star-rating">
+                            {% for star in "★★★★★" %}
+                                <span class="star {% if forloop.counter <= review.rating %}selected{% endif %}">&#9733;</span>
+                            {% endfor %}
+                        </div>
+                    </strong>
                     <p>{{ review.comment }}</p>
                     <small class="text-muted">{{ review.created_at|date:"M d, Y H:i" }}</small>
                 </div>
@@ -58,19 +64,75 @@
                 <p>No reviews yet.</p>
             {% endfor %}
         </div>
+        
     
-        <!-- Review form for logged-in users only -->
-        {% if user.is_authenticated %}
-        <h4>Submit a Review</h4>
-        <form method="POST" action="{% url 'product-detail' product.id %}">
-            {% csrf_token %}
-            {{ review_form.as_p }}
-            <button type="submit" class="btn btn-primary" style="padding-bottom:3%">Submit Review</button>
-        </form>
-        {% else %}
-        <p><a href="{% url 'login' %}">Log in</a> to submit a review.</p>
-        {% endif %}
+        
+    <!-- Review form for logged-in users only -->
+{% if user.is_authenticated %}
+<h4>Submit a Review</h4>
+<form method="POST" action="{% url 'product-detail' product.id %}">
+    {% csrf_token %}
+    
+    <div class="star-rating">
+        <input type="radio" name="rating" value="5" id="star-5" /><label for="star-5" class="star">&#9733;</label>
+        <input type="radio" name="rating" value="4" id="star-4" /><label for="star-4" class="star">&#9733;</label>
+        <input type="radio" name="rating" value="3" id="star-3" /><label for="star-3" class="star">&#9733;</label>
+        <input type="radio" name="rating" value="2" id="star-2" /><label for="star-2" class="star">&#9733;</label>
+        <input type="radio" name="rating" value="1" id="star-1" /><label for="star-1" class="star">&#9733;</label>
     </div>
+
+    <div>
+        <label for="comment">Comment:</label>
+        {{ review_form.comment }}
+    </div>
+
+    {% comment %} <button type="submit" class="btn btn-primary" style="padding-bottom:3%">Submit Review</button> {% endcomment %}
+    <div class="d-flex justify-content-center mb-4"> <!-- Bootstrap flex utility classes -->
+        <button type="submit" class="btn btn-primary">Submit Review</button>
+    </div>
+    
+    
+</form>
+{% else %}
+<p><a href="{% url 'login' %}">Log in</a> to submit a review.</p>
+{% endif %}
+
+<style>
+    .star-rating {
+        direction: rtl; /* To allow selecting the star from right to left */
+        display: flex;
+        justify-content: flex-start; /* Align stars to the left */
+    }
+    
+    .star {
+        font-size: 2rem; /* Size of the stars */
+        color: gray; /* Default color */
+        cursor: pointer; /* Cursor changes to pointer on hover */
+    }
+    
+    .star-rating input[type="radio"] {
+        display: none; /* Hide radio buttons */
+    }
+    
+    .star-rating input[type="radio"]:checked ~ .star {
+        color: gold; /* Color of selected stars */
+    }
+    
+    /* Highlight previous stars */
+    .star-rating input[type="radio"]:checked ~ .star {
+        color: gold; /* Selected star color */
+    }
+    
+    .star-rating input[type="radio"]:not(:checked) + .star:hover,
+    .star-rating input[type="radio"]:not(:checked) + .star:hover ~ .star {
+        color: gold; /* Color on hover */
+    }
+   
+    .star.selected {
+        color: gold; /* Color for selected stars */
+    }
+
+</style>
 
     <!-- JavaScript for AJAX Wishlist functionality -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>

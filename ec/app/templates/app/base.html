@@ -30,7 +30,7 @@
                     {% if request.user.is_superuser %}
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'product_list' %}" style="color: rgb(255, 255, 255);">
-                            <i class="fas fa-tachometer-alt"></i> <strong>Dashboard</strong>
+                             <strong>ADMIN</strong>
                         </a>
                     </li>
                     {% endif %}
@@ -78,9 +78,7 @@
                 </ul>
 
                
-                {% if user.is_staff %}
-    <div class="nav-item mx-2" ><a href="{% url 'custom_admin' %}" class="nav-link text-white">Admin Panel</a></div>
-                 {% endif %}
+            
                  
                
 
@@ -104,26 +102,6 @@
               <div class="nav-item mx-2">
                 <a href="{% url 'orders' %}" class="nav-link text-white">Orders</a>
             </div>  
-            {% comment %} <div class="nav-item mx-2">
-                <a href="#" class="nav-link text-white">
-                     <i class="fas fa-heart"></i> <!--heart icon -->
-                    <span class="badge bg-dark">
-                        {% if wishitem|add:"0" > 0 %}
-                            {{ wishitem }}
-                        {% endif %}
-                    </span>
-                </a>
-            </div> {% endcomment %}
-            {% comment %} <div class="nav-item mx-2">
-                <a href="{% url 'wishlist' %}" class="nav-link text-white" id="wishlist-icon">
-                    <i class="fas fa-heart"></i>
-                    <span class="badge bg-dark" id="wishlist-count">
-                        {% if wishitem|add:"0" > 0 %}
-                            {{ wishitem }}
-                        {% endif %}
-                    </span>
-                </a>
-            </div> {% endcomment %}
         </div>
     </nav>
 
@@ -132,7 +110,7 @@
     {% block main-content %} {% endblock main-content %}
     {% block payment-gateway %} {% endblock payment-gateway %}
 
-    <footer class="container-fluid fixed-bottom bg-danger text-center p-2 mt-5">
+    <footer class="container-fluid fixed-bottom bg-danger text-center p-2 mt-5" style="height: 3%; line-height: 4%;">
         &#169; CopyRight By Chandra Mohan 
     </footer>
 

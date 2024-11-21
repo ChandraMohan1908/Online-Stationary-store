@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
-
+from django.utils import timezone
 
 #create your models
 STATE_CHOICES =(
@@ -49,7 +49,7 @@ CATEGORY_CHOICES = (
 )
 
 class Product(models.Model):
-    title = models.CharField(max_length=100)
+    title = models.CharField(max_length=200)
     selling_price = models.FloatField()  
     discounted_price = models.FloatField()  
     description = models.TextField(default='')
@@ -70,8 +70,6 @@ class Review(models.Model):
 
     def __str__(self):
         return f"{self.product.title} review by {self.user.username}"
-
-    
 
 
 class Customer(models.Model):
@@ -109,14 +107,18 @@ class Order(models.Model):
 
 
 class Payment(models.Model):
-    user=models.ForeignKey(User,on_delete=models.CASCADE)
-    amount=models.FloatField()
-    razorpay_order_id=models.CharField(max_length=100,blank=True,null=True)
-    razorpay_payment_status=models.CharField(max_length=100,blank=True,null=True)
-    razorpay_payment_id=models.CharField(max_length=100,blank=True,null=True)
-    paid=models.BooleanField(default=False)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    paid = models.BooleanField(default=False)
+    razorpay_payment_status = models.CharField(max_length=50, blank=True, null=True)
+    razorpay_payment_id = models.CharField(max_length=100, blank=True, null=True)
+    razorpay_order_id = models.CharField(max_length=100, blank=True, null=True)
 
+    # Set a default value for 'date'
+    date = models.DateTimeField(default=timezone.now)  # Remove auto_now_add=True and set a default
 
+    # Add 'status' field
+    status = models.CharField(max_length=20, default='Pending')
 
 
 class Orderplaced(models.Model):
@@ -125,17 +127,13 @@ class Orderplaced(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)  
     quantity = models.PositiveBigIntegerField(default=1)
     ordered_date = models.DateTimeField(auto_now_add=True)
-    status = models.CharField(max_length=50, choices=STATE_CHOICES, default='Pending')
+    status = models.CharField(max_length=50, choices=Order.STATUS_CHOICES, default='Accepted')  # Set default to 'Accepted'
     payment = models.ForeignKey(Payment, on_delete=models.CASCADE)  
 
     @property
     def total_cost(self):
-        return self.quantity * self.product.discounted_price  
-    
+        return self.quantity * self.product.discounted_price
 
-# class Wishlist(models.Model):
-#     user = models.ForeignKey(User, on_delete=models.CASCADE)
-#     product = models.ForeignKey(Product, on_delete=models.CASCADE)  # Change 'Product' to 'product'
 
 class Wishlist(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -143,3 +141,13 @@ class Wishlist(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.product.name}"
+    
+
+class ContactMessage(models.Model):
+    subject = models.CharField(max_length=100)
+    message = models.TextField()
+    sender_email = models.EmailField()
+    date_sent = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.subject

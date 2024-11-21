@@ -1,45 +1,36 @@
 {% extends 'app/base.html' %}
 {% load static %}
-{% block title %}Buy Now{% endblock title %}
+{% block title %}Orders{% endblock title %}
+
 {% block main-content %}
 <div class="container my-5">
+    <h1 class="text-center mb-5">Your Orders</h1>
     <div class="row">
-        <h3>Welcome <span class="text-capitalize">{{ request.user }}</span></h3>
-        <div class="col-sm-2 border-end">
-            <ul class="list-unstyled">
-                <li class="d-grid"><a href="{% url 'orders' %}" class="btn btn-primary">Orders</a></li>
-            </ul>
-        </div>
-
-        <!-- app/templates/app/orders.html -->
-<div class="container my-5">
-    <h3>Your Orders</h3>
-    <div class="row">
-        <div class="col-sm-12">
-            {% for op in order_placed %}
-            <div class="row mb-4 border p-3">
-                <div class="col-sm-2">
-                    <img src="{{ op.product.Product_image.url }}" class="img-fluid" height="100" width="100"/>
+        {% if order_placed %}
+            {% for order in order_placed %}
+                <div class="col-md-4 mb-4"> <!-- Three cards in a row -->
+                    <div class="card">
+                        <img src="{{ order.product.Product_image.url }}" class="card-img-top w-100 h-75" 
+                             alt="{{ order.product.title }}" 
+                             onerror="this.onerror=null;this.src='{% static 'images/default_image.jpg' %}'">
+                        <div class="card-body">
+                            <h4 class="card-title">{{ order.product.title }}</h4>
+                            <p class="card-text"><strong>Quantity:</strong> {{ order.quantity }}</p>
+                            <p class="card-text"><strong>Status:</strong> {{ order.status }}</p>
+                            <p class="card-text"><strong>Order Date:</strong> {{ order.ordered_date|date:"M d, Y H:i" }}</p>
+                            <p class="card-text"><strong>Total Cost:</strong> Rs. {{ order.total_cost }}</p>
+                            
+                            <!-- Add the Download Invoice link for delivered orders -->
+                            {% if order.status == "Delivered" %}
+                                <a href="{% url 'download_invoice' order.id %}" class="btn btn-primary">Download Invoice</a>
+                            {% endif %}
+                        </div>
+                    </div>
                 </div>
-                <div class="col-sm-7">
-                    <p><strong>Product:</strong> {{ op.product.title }}</p>
-                    <p><strong>Quantity:</strong> {{ op.quantity }}</p>
-                    <p><strong>Ordered Date:</strong> {{ op.ordered_date|date:"M d, Y" }}</p>
-                    <p><strong>Status:</strong> {{ op.status }}</p>
-                </div>
-                <div class="col-sm-3">
-                    <p><strong>Selling Price:</strong> ${{ op.product.selling_price }}</p>
-                    <p><strong>Discounted Price:</strong> ${{ op.product.discounted_price }}</p>
-                    {% if op.payment %}
-                        <p><strong>Payment ID:</strong> {{ op.payment.id }}</p>
-                    {% endif %}
-                </div>
-            </div>
-            {% empty %}
-            <p>No orders have been placed yet.</p>
             {% endfor %}
-        </div>
+        {% else %}
+            <p>No orders found.</p>
+        {% endif %}
     </div>
 </div>
-
 {% endblock main-content %}

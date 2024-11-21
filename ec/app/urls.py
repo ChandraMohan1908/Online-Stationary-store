@@ -56,6 +56,13 @@ urlpatterns = [
 #search
     path('search/',views.search,name='search'),
 
+#EMAIL
+    path('contact_form/', views.send_contact_email, name='send_contact_email'),
+#Orders
+    path('place-order/', views.place_order, name='place_order'),
+    path('orders/', views.orders, name='orders'),
+     path('order/<int:order_id>/download_invoice/', views.download_invoice, name='download_invoice'),
+
 
     #logout
    path('logout/', auth_views.LogoutView.as_view(next_page='login'), name='logout'),
@@ -97,8 +104,8 @@ urlpatterns = [
     path('payments/add/', views.payment_add, name='payment_add'),
     path('payments/edit/<int:pk>/', views.payment_edit, name='payment_edit'),
     path('payments/delete/<int:pk>/', views.payment_delete, name='payment_delete'), 
-
-    path('dashboard/', views.dashboard, name='dashboard'),
+    path('dashboard/', views.dashboard_view, name='dashboard'),
+  
 
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

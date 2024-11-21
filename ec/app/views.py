@@ -1,15 +1,27 @@
-from django.db.models import Count 
-from django.shortcuts import render,redirect, get_object_or_404
-from django.views import View 
-from .models import Product, Customer,Cart,Wishlist, Payment, Orderplaced
-from .forms import CustomerRegistrationForm,CustomerProfileForm, PasswordChangeForm,ProductForm, CustomerForm, CartForm, PaymentForm, OrderplacedForm,ReviewForm
-from django.contrib import messages
-from django.db.models import Q
-from django.http import JsonResponse
-from django.contrib.admin.sites import site
+from django.shortcuts import render, redirect, get_object_or_404
+from django.http import HttpResponse, JsonResponse
+from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
-from .models import Wishlist,Product, Review
+from django.contrib import messages
+from django.conf import settings
+from django.db.models import Count, Q
+from django.template.loader import render_to_string, get_template
+from io import BytesIO
+from xhtml2pdf import pisa
+import os
+
+from django.core.mail import send_mail
+from .models import (
+    Cart, Customer, Payment, Orderplaced, Product, Wishlist, Review, ContactMessage, CATEGORY_CHOICES
+)
+from .forms import (
+    CustomerRegistrationForm, CustomerProfileForm, PasswordChangeForm,
+    ProductForm, CustomerForm, CartForm, PaymentForm, OrderplacedForm, ReviewForm, ContactForm
+)
+from django.views import View
+from django.contrib.admin.sites import site
+
 
 
 # Create your views here.
@@ -39,18 +51,6 @@ class CategoryView(View):
         # Pass products to the template as context
         title = Product.objects.filter(category=val).values('title')
         return render(request,"app/Category.html",locals()) 
-
-# class ProductDetail(View):
-#     def get(self, request, pk):
-#         product = Product.objects.get(pk=pk)
-#         wishlist = None
-#         totalitem = 0
-#         wishlist=0
-#         if request.user.is_authenticated:
-#             wishlist = Wishlist.objects.filter(Q(product=product) & Q(user=request.user))
-#             totalitem = len(Cart.objects.filter(user=request.user))
-#             wishlist=len(Wishlist.objects.filter(user=request.user))
-#         return render(request, "app/productdetail.html", locals())
 
 def product_detail(request, pk):
     product = get_object_or_404(Product, id=pk)
@@ -255,6 +255,36 @@ def orders(request):
     })
 
 
+def download_invoice(request, order_id):
+    try:
+        order = Orderplaced.objects.get(id=order_id, user=request.user, status="Delivered")
+    except Orderplaced.DoesNotExist:
+        return HttpResponse('Order not found or not delivered.')
+
+    # Define the template and context for generating the invoice
+    template_path = 'app/invoice_template.html'
+    context = {'order': order}
+
+    # Create a BytesIO buffer for the PDF
+    buffer = BytesIO()
+    template = get_template(template_path)
+    html = template.render(context)
+
+    # Generate the PDF using xhtml2pdf
+    pisa_status = pisa.CreatePDF(html, dest=buffer)
+    buffer.seek(0)  # Move to the beginning of the buffer
+
+    if pisa_status.err:
+        return HttpResponse('We had some errors while generating the PDF.')
+
+    # Return the PDF response to the user
+    response = HttpResponse(buffer.getvalue(), content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="invoice_{order.id}.pdf"'  # To download the file
+    return response
+
+
+
+
 #ADMIN
 
 class CustomAdminView(View):
@@ -358,31 +388,6 @@ def remove_cart(request):
         except Cart.DoesNotExist:
             return JsonResponse(data)
         
-
-# def plus_wishlist(request):
-#     if request.method == 'GET':
-#         prod_id = request.GET['prod_id']
-#         product_instance = Product.objects.get(id=prod_id)
-#         user = request.user
-#         if user.is_authenticated:
-#             Wishlist.objects.get_or_create(user=user, product=product_instance)
-#             data = {
-#                 'message': 'Wishlist Added Successfully',
-#             }
-#             return JsonResponse(data)
-#         else:
-#             return JsonResponse(data)
-
-# def minus_wishlist(request):
-#     if request.method == 'GET':
-#         prod_id = request.GET['prod_id']
-#         product_instance = Product.objects.get(id=prod_id)  
-#         user = request.user
-#         Wishlist.objects.filter(user=user, product=product_instance).delete()  
-#         data = {
-#             'message': 'Wishlist Remove Successfully',
-#         }
-#         return JsonResponse(data)
     
 
 # Include this function if not already present
@@ -596,17 +601,157 @@ def payment_delete(request, pk):
     return redirect('payment_list')  # Redirect back to the payment list
 
 
-def dashboard(request):
-    total_products = Product.objects.count()
-    total_customers = Customer.objects.count()
-    total_orders = Orderplaced.objects.count()
-    total_cart_items = Cart.objects.count()
+
+def dashboard_view(request):
+    # Map abbreviations to full names for categories
+    category_dict = dict(CATEGORY_CHOICES)
+    
+    # Products data by category with full names
+    products_data = Product.objects.values('category').annotate(total=Count('id'))
+    products_chart_data = {
+        'labels': [category_dict[entry['category']] for entry in products_data],  # Use full names
+        'values': [entry['total'] for entry in products_data]
+    }
+
+    # Orders data by status
+    orders_data = Orderplaced.objects.values('status').annotate(total=Count('id'))
+    orders_chart_data = {
+        'labels': [entry['status'] for entry in orders_data],
+        'values': [entry['total'] for entry in orders_data]
+    }
+
+    # Customers data by state
+    customers_data = Customer.objects.values('state').annotate(total=Count('id'))
+    customers_chart_data = {
+        'labels': [entry['state'] for entry in customers_data],
+        'values': [entry['total'] for entry in customers_data]
+    }
+
+    # Payments data by status
+    payments_data = Payment.objects.values('status').annotate(total=Count('id'))
+    payments_chart_data = {
+        'labels': [entry['status'] for entry in payments_data],
+        'values': [entry['total'] for entry in payments_data]
+    }
 
     context = {
-        'total_products': total_products,
-        'total_customers': total_customers,
-        'total_orders': total_orders,
-        'total_cart_items': total_cart_items,
+        'products_data': products_chart_data,
+        'orders_data': orders_chart_data,
+        'customers_data': customers_chart_data,
+        'payments_data': payments_chart_data,
     }
-    return render(request, 'admin/dashboard.html', context)    
+    
+    return render(request, 'admin/dashboard.html', context)
 
+
+
+
+@login_required
+def place_order(request):
+    # Get the current user
+    user = request.user
+
+    # Retrieve the cart items for the current user
+    cart_items = Cart.objects.filter(user=user)
+    
+    # Check if the cart is empty
+    if not cart_items.exists():
+        return redirect('show_cart')  # Redirect if the cart is empty
+
+    # Retrieve the associated customer instance
+    try:
+        customer = Customer.objects.get(user=user)
+    except Customer.DoesNotExist:
+        return redirect('profile')  # Redirect to profile if customer details are missing
+
+    # Calculate the total amount for the payment
+    total_amount = sum(item.quantity * item.product.discounted_price for item in cart_items)
+
+    # Create a new payment record for the order
+    payment = Payment.objects.create(
+        user=user,
+        amount=total_amount,
+        status='Completed',  # Update status as needed
+        date=timezone.now()
+    )
+
+    # Collect order details to include in the email
+    product_details = ""
+    for item in cart_items:
+        # Create each order entry
+        Orderplaced.objects.create(
+            user=user,
+            customer=customer,
+            product=item.product,
+            quantity=item.quantity,
+            payment=payment,
+            ordered_date=timezone.now(),
+            status='Accepted'
+        )
+        # Append product details to the email content
+        product_details += f"{item.product.title} (Quantity: {item.quantity})\n"
+    
+    # Clear the user's cart after placing the order
+    cart_items.delete()
+
+    # Construct and send the email
+    subject = 'Order Confirmation'  # Email subject
+    message = (
+        f"Dear {user.username},\n\n"
+        f"Your order has been placed successfully with the following details:\n\n"
+        f"Products:\n{product_details}\n"
+        f"Total Amount: Rs. {total_amount}\n\n"
+        f"Thank you for shopping with us!\n\nBest regards,\nYour Eshop Team"
+    )
+    email_from = 'chandruganesan19@gmail.com'  # Replace with your sender email address
+    recipient_list = [user.email]  # User’s email from their profile
+
+    # Send the email
+    send_mail(subject, message, email_from, recipient_list)
+
+    # Redirect to the orders page after processing and email sending
+    return redirect('orders')
+
+
+def orders(request):
+    totalitem = 0
+    wishlist = 0
+    order_placed = []
+
+    if request.user.is_authenticated:
+        totalitem = Cart.objects.filter(user=request.user).count()
+        wishlist = Wishlist.objects.filter(user=request.user).count()
+        order_placed = Orderplaced.objects.filter(user=request.user).order_by('-ordered_date')
+
+    return render(request, 'app/orders.html', {
+        'order_placed': order_placed,
+        'totalitem': totalitem,
+        'wishlist': wishlist
+    })
+
+
+def send_contact_email(request):
+    if request.method == "POST":
+        form = ContactForm(request.POST)
+        if form.is_valid():
+            # Get form data
+            user_email = request.user.email  # logged-in user's email
+            subject = form.cleaned_data['subject']
+            message = form.cleaned_data['message']
+            from_email = user_email  # Sender email
+            recipient_list = ['chandruganesan19@gmail.com']  # Admin email
+
+            # Send email
+            send_mail(
+                subject,
+                message,
+                from_email,
+                recipient_list,
+                fail_silently=False
+            )
+            return redirect('send_contact_email')  # Redirect to a success page
+
+    else:
+        form = ContactForm()
+
+    return render(request, 'app/contact_form.html', {'form': form})

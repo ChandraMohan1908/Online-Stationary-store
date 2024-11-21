@@ -2,7 +2,6 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, UsernameField, PasswordChangeForm, SetPasswordForm, PasswordResetForm
 from django.contrib.auth.models import User
 from .models import Product, Customer, Cart, Payment, Orderplaced, Review
-
 from . models  import Customer 
 
 class LoginForm(AuthenticationForm):
@@ -99,3 +98,8 @@ class ReviewForm(forms.ModelForm):
             'rating': forms.Select(choices=[(i, i) for i in range(1, 6)]),
             'comment': forms.Textarea(attrs={'rows': 3}),
         }
+
+class ContactForm(forms.Form):
+    subject = forms.CharField(max_length=100, label="Subject")
+    message = forms.CharField(widget=forms.Textarea, label="Message")
+    email = forms.EmailField(label="Your Email")
